@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1D9E75">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="運用シミュレーター">
+<meta property="og:title" content="資産運用シミュレーター">
+<meta property="og:description" content="成長型＋配当型／NISA対応／税引後計算。スライダーで条件を変えながらリアルタイムにシミュレーション。">
+<meta property="og:type" content="website">
+<title>資産運用シミュレーター</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#fff;--bg2:#f5f5f2;--bg3:#eeede8;
+  --text:#1a1a18;--text2:#5f5e5a;--text3:#888780;
+  --bd:rgba(0,0,0,.12);--bd2:rgba(0,0,0,.22);
+  --r:8px;--rlg:12px;
+  --gr:#1D9E75;--grd:#085041;--am:#BA7517;--aml:#EF9F27;
+  --bl:#185FA5;--rd:#A32D2D;--tl:#5DCAA5;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;
+  --text:#f0efe9;--text2:#b4b2a9;
+  --bd:rgba(255,255,255,.12);--bd2:rgba(255,255,255,.22);
+}}
+html{scroll-behavior:smooth;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;
+  background:var(--bg3);color:var(--text);
+  min-height:100vh;-webkit-font-smoothing:antialiased;
+  padding-bottom:max(24px,env(safe-area-inset-bottom));
+}
+header{
+  background:var(--bg);border-bottom:.5px solid var(--bd);
+  padding:12px 16px;padding-top:max(12px,calc(12px + env(safe-area-inset-top)));
+  position:sticky;top:0;z-index:100;
+  display:flex;align-items:center;gap:12px;
+}
+.logo{
+  width:34px;height:34px;border-radius:var(--r);background:var(--gr);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.logo svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+header h1{font-size:15px;font-weight:500;}
+header p{font-size:11px;color:var(--text3);margin-top:1px;}
+.wrap{max-width:860px;margin:0 auto;padding:12px 12px 32px;}
+.panel{background:var(--bg);border-radius:var(--rlg);border:.5px solid var(--bd);padding:14px 16px;margin-bottom:10px;}
+.sec{font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin:1rem 0 .5rem;}
+.sec:first-child{margin-top:0;}
+.bg{border-left:3px solid var(--gr);padding-left:8px;}
+.ba{border-left:3px solid var(--aml);padding-left:8px;}
+.bb{border-left:3px solid var(--bl);padding-left:8px;}
+
+/* row */
+.row{display:flex;align-items:center;gap:7px;margin-bottom:.44rem;flex-wrap:wrap;}
+.row>label{font-size:13px;color:var(--text2);width:120px;flex-shrink:0;}
+.row>.unit{font-size:12px;color:var(--text3);flex-shrink:0;}
+.row>input[type=range]{flex:1;min-width:60px;accent-color:var(--gr);height:4px;cursor:pointer;}
+.row>.val{font-size:13px;font-weight:500;min-width:76px;text-align:right;margin-left:auto;flex-shrink:0;}
+
+/* stepper */
+.stp{display:flex;align-items:center;flex-shrink:0;}
+.stp button{
+  width:30px;height:30px;border:.5px solid var(--bd2);
+  background:var(--bg);color:var(--text);font-size:17px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .1s;-webkit-tap-highlight-color:transparent;user-select:none;
+}
+.stp button:first-child{border-radius:var(--r) 0 0 var(--r);}
+.stp button:last-child{border-radius:0 var(--r) var(--r) 0;}
+.stp button:active{background:var(--bg2);}
+.stp input[type=number]{
+  width:64px;border-radius:0;
+  border:.5px solid var(--bd2);border-left:none;border-right:none;
+  text-align:center;font-size:13px;height:30px;padding:0;
+  background:var(--bg);color:var(--text);-moz-appearance:textfield;
+}
+.stp input::-webkit-inner-spin-button,.stp input::-webkit-outer-spin-button{-webkit-appearance:none;}
+
+/* mobile row reflow */
+@media(max-width:520px){
+  .row>label{width:auto;flex:1;}
+  .row>.val{min-width:auto;}
+  .row>input[type=range]{width:100%;flex-basis:100%;order:3;}
+  .row>.stp,.row>.unit{order:2;}
+}
+
+/* toggle */
+.tog{display:flex;border-radius:var(--r);overflow:hidden;border:.5px solid var(--bd2);}
+.tog button{
+  flex:1;padding:7px 14px;font-size:13px;border:none;cursor:pointer;
+  transition:background .15s,color .15s;white-space:nowrap;
+  -webkit-tap-highlight-color:transparent;
+}
+.tog button.off{background:var(--bg);color:var(--text2);}
+.tog button.on{background:var(--gr);color:#fff;font-weight:500;}
+.tog button:first-child{border-right:.5px solid var(--bd2);}
+#tnote{font-size:12px;color:var(--grd);margin-top:5px;}
+
+/* nisa bar */
+.nbar{background:var(--bg2);border-radius:var(--r);padding:.55rem .85rem;margin:.4rem 0;}
+.nbar-head{font-size:11px;color:var(--text3);margin-bottom:5px;display:flex;justify-content:space-between;}
+.nbar-track{height:7px;border-radius:4px;background:var(--bd);overflow:hidden;}
+.nbar-fill{height:100%;border-radius:4px;background:var(--gr);transition:width .3s;}
+.nbar-fill.ov{background:#E24B4A;}
+
+/* cards */
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:.6rem 0;}
+.g4b{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:.3rem 0 .1rem;}
+@media(max-width:520px){.g4,.g4b{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.cd{background:var(--bg2);border-radius:var(--r);padding:.6rem .75rem;}
+.cd.gh{background:transparent;}
+.cdl{font-size:11px;color:var(--text3);margin-bottom:2px;line-height:1.3;}
+.cdv{font-size:15px;font-weight:500;}
+.cdv.g{color:var(--gr);}.cdv.gd{color:var(--grd);}.cdv.a{color:var(--am);}.cdv.t2{color:var(--text2);}
+
+/* drag info */
+#dinfo{
+  background:var(--bg);border:.5px solid var(--bd2);border-radius:var(--r);
+  padding:9px 12px;margin-bottom:10px;min-height:54px;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+}
+.dib{display:flex;flex-direction:column;gap:1px;}
+.dibl{font-size:11px;color:var(--text3);}
+.dibv{font-size:13px;font-weight:500;}
+.dibv.g{color:var(--gr);}.dibv.a{color:var(--am);}.dibv.r{color:var(--rd);}
+.dihi{font-size:12px;color:var(--text3);margin:auto;text-align:center;}
+
+/* legend */
+.leg{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;font-size:11px;color:var(--text3);}
+.leg span{display:flex;align-items:center;gap:4px;}
+.leg i{width:10px;height:10px;border-radius:2px;display:inline-block;flex-shrink:0;}
+.leg i.d{height:3px;border-radius:1px;}
+
+#cw{position:relative;width:100%;height:290px;cursor:crosshair;}
+@media(max-width:400px){#cw{height:240px;}}
+
+hr.dv{border:none;border-top:.5px solid var(--bd);margin:.85rem 0;}
+.note{font-size:11px;color:var(--text3);line-height:1.75;margin-top:10px;}
+footer{text-align:center;font-size:11px;color:var(--text3);padding:20px 16px 8px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 20 20"><polyline points="2,14 7,8 11,11 18,4"/><line x1="14" y1="4" x2="18" y2="4"/><line x1="18" y1="4" x2="18" y2="8"/></svg>
+  </div>
+  <div>
+    <h1>資産運用シミュレーター</h1>
+    <p>成長型＋配当型 ／ NISA対応 ／ 税引後計算</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 基本 -->
+  <div class="panel">
+    <div class="sec">基本設定</div>
+    <div class="row">
+      <label>生まれた年</label>
+      <div class="stp"><button onclick="sv('by',-1)">−</button><input type="number" id="by" value="1980" min="1940" max="2010" step="1"><button onclick="sv('by',1)">+</button></div>
+      <span class="unit">年生まれ</span>
+      <input type="range" id="by-r" min="1940" max="2010" step="1" value="1980">
+      <span class="val" id="by-o">現在45歳</span>
+    </div>
+  </div>
+
+  <!-- NISA -->
+  <div class="panel">
+    <div class="sec"><span class="bb">NISA設定</span></div>
+    <div class="row">
+      <label>NISA残枠</label>
+      <div class="stp"><button onclick="sm('nr',-10)">−</button><input type="number" id="nr" value="500" min="0" max="1800" step="10"><button onclick="sm('nr',10)">+</button></div>
+      <span class="unit">万円</span>
+      <input type="range" id="nr-r" min="0" max="1800" step="10" value="500">
+      <span class="val" id="nr-o">500万円</span>
+    </div>
+    <div class="nbar">
+      <div class="nbar-head"><span>NISA使用済み</span><span id="nlbl">1,300万円 / 1,800万円</span></div>
+      <div class="nbar-track"><div class="nbar-fill" id="nfill" style="width:72.2%"></div></div>
+    </div>
+  </div>
+
+  <!-- 成長型 -->
+  <div class="panel">
+    <div class="sec"><span class="bg">成長型（複利運用）</span></div>
+    <div class="row"><label>現在の運用金額</label><div class="stp"><button onclick="sm('gi',-10)">−</button><input type="number" id="gi" value="1000" min="0" step="10"><button onclick="sm('gi',10)">+</button></div><span class="unit">万円</span><input type="range" id="gi-r" min="0" max="5000" step="10" value="1000"><span class="val" id="gi-o">1,000万円</span></div>
+    <div class="row"><label>年利（株価成長）</label><div class="stp"><button onclick="sv('gr',-0.5)">−</button><input type="number" id="gr" value="6" min="0" max="20" step="0.5"><button onclick="sv('gr',0.5)">+</button></div><span class="unit">%</span><input type="range" id="gr-r" min="0" max="20" step="0.5" value="6"><span class="val" id="gr-o">6.0%</span></div>
+    <div class="row"><label>フェーズ1追加/年</label><div class="stp"><button onclick="sm('gp1',-10)">−</button><input type="number" id="gp1" value="180" min="0" step="10"><button onclick="sm('gp1',10)">+</button></div><span class="unit">万円</span><input type="range" id="gp1-r" min="0" max="1000" step="10" value="180"><span class="val" id="gp1-o">180万円/年</span></div>
+    <div class="row"><label>フェーズ2追加/年</label><div class="stp"><button onclick="sm('gp2',-10)">−</button><input type="number" id="gp2" value="80" min="-500" step="10"><button onclick="sm('gp2',10)">+</button></div><span class="unit">万円</span><input type="range" id="gp2-r" min="-500" max="500" step="10" value="80"><span class="val" id="gp2-o">80万円/年</span></div>
+  </div>
+
+  <!-- 配当型 -->
+  <div class="panel">
+    <div class="sec"><span class="ba">配当型（インカム重視）</span></div>
+    <div class="row"><label>現在の運用金額</label><div class="stp"><button onclick="sm('di',-10)">−</button><input type="number" id="di" value="300" min="0" step="10"><button onclick="sm('di',10)">+</button></div><span class="unit">万円</span><input type="range" id="di-r" min="0" max="3000" step="10" value="300"><span class="val" id="di-o">300万円</span></div>
+    <div class="row"><label>年利（株価成長）</label><div class="stp"><button onclick="sv('dr',-0.5)">−</button><input type="number" id="dr" value="2" min="0" max="15" step="0.5"><button onclick="sv('dr',0.5)">+</button></div><span class="unit">%</span><input type="range" id="dr-r" min="0" max="15" step="0.5" value="2"><span class="val" id="dr-o">2.0%</span></div>
+    <div class="row"><label>配当利回り（初年）</label><div class="stp"><button onclick="sv('dy',-0.5)">−</button><input type="number" id="dy" value="4" min="0" max="15" step="0.5"><button onclick="sv('dy',0.5)">+</button></div><span class="unit">%</span><input type="range" id="dy-r" min="0" max="15" step="0.5" value="4"><span class="val" id="dy-o">4.0%</span></div>
+    <div class="row"><label>増配率（年）</label><div class="stp"><button onclick="sv('dg',-0.5)">−</button><input type="number" id="dg" value="3" min="0" max="20" step="0.5"><button onclick="sv('dg',0.5)">+</button></div><span class="unit">%</span><input type="range" id="dg-r" min="0" max="20" step="0.5" value="3"><span class="val" id="dg-o">3.0%</span></div>
+    <div class="row"><label>フェーズ1追加/年</label><div class="stp"><button onclick="sm('dp1',-10)">−</button><input type="number" id="dp1" value="60" min="0" step="10"><button onclick="sm('dp1',10)">+</button></div><span class="unit">万円</span><input type="range" id="dp1-r" min="0" max="600" step="10" value="60"><span class="val" id="dp1-o">60万円/年</span></div>
+    <div class="row"><label>フェーズ2追加/年</label><div class="stp"><button onclick="sm('dp2',-10)">−</button><input type="number" id="dp2" value="40" min="-300" step="10"><button onclick="sm('dp2',10)">+</button></div><span class="unit">万円</span><input type="range" id="dp2-r" min="-300" max="300" step="10" value="40"><span class="val" id="dp2-o">40万円/年</span></div>
+    <div class="row" style="margin-top:.6rem;">
+      <label>配当金の使途</label>
+      <div class="tog"><button id="tc" class="on" onclick="setTog('cash')">現金受取</button><button id="tri" class="off" onclick="setTog('reinvest')">再投資</button></div>
+    </div>
+    
