@@ -2,211 +2,255 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#1D9E75">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="運用シミュレーター">
+<meta name="apple-mobile-web-app-title" content="資産シミュレーター">
 <meta property="og:title" content="資産運用シミュレーター">
-<meta property="og:description" content="成長型＋配当型／NISA対応／税引後計算。スライダーで条件を変えながらリアルタイムにシミュレーション。">
+<meta property="og:description" content="成長型＋配当型／NISA対応／税引後計算。スライダーで条件を変えながらシミュレーション。">
 <meta property="og:type" content="website">
 <title>資産運用シミュレーター</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-annotation/3.0.1/chartjs-plugin-annotation.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --bg:#fff;--bg2:#f5f5f2;--bg3:#eeede8;
-  --text:#1a1a18;--text2:#5f5e5a;--text3:#888780;
-  --bd:rgba(0,0,0,.12);--bd2:rgba(0,0,0,.22);
-  --r:8px;--rlg:12px;
-  --gr:#1D9E75;--grd:#085041;--am:#BA7517;--aml:#EF9F27;
-  --bl:#185FA5;--rd:#A32D2D;--tl:#5DCAA5;
-}
-@media(prefers-color-scheme:dark){:root{
-  --bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;
-  --text:#f0efe9;--text2:#b4b2a9;
-  --bd:rgba(255,255,255,.12);--bd2:rgba(255,255,255,.22);
-}}
-html{scroll-behavior:smooth;}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;
-  background:var(--bg3);color:var(--text);
-  min-height:100vh;-webkit-font-smoothing:antialiased;
-  padding-bottom:max(24px,env(safe-area-inset-bottom));
-}
-header{
-  background:var(--bg);border-bottom:.5px solid var(--bd);
-  padding:12px 16px;padding-top:max(12px,calc(12px + env(safe-area-inset-top)));
-  position:sticky;top:0;z-index:100;
-  display:flex;align-items:center;gap:12px;
-}
-.logo{
-  width:34px;height:34px;border-radius:var(--r);background:var(--gr);
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
-.logo svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+:root{--bg:#fff;--bg2:#f5f5f2;--bg3:#eeede8;--text:#1a1a18;--text2:#5f5e5a;--text3:#888780;--bd:rgba(0,0,0,.12);--bd2:rgba(0,0,0,.22);--r:8px;--rl:12px;--green:#1D9E75;--green-d:#085041;--amber:#BA7517;--amber-l:#EF9F27;--blue:#185FA5;--red:#A32D2D;--teal:#5DCAA5;}
+@media(prefers-color-scheme:dark){:root{--bg:#1c1c1a;--bg2:#252523;--bg3:#2e2e2b;--text:#f0efe9;--text2:#b4b2a9;--text3:#888780;--bd:rgba(255,255,255,.12);--bd2:rgba(255,255,255,.22);}}
+html{-webkit-text-size-adjust:100%;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;}
+header{background:var(--bg);border-bottom:.5px solid var(--bd);padding:12px 16px;position:sticky;top:0;z-index:100;}
 header h1{font-size:15px;font-weight:500;}
 header p{font-size:11px;color:var(--text3);margin-top:1px;}
-.wrap{max-width:860px;margin:0 auto;padding:12px 12px 32px;}
-.panel{background:var(--bg);border-radius:var(--rlg);border:.5px solid var(--bd);padding:14px 16px;margin-bottom:10px;}
+.container{max-width:860px;margin:0 auto;padding:12px 12px 56px;}
+.panel{background:var(--bg);border-radius:var(--rl);border:.5px solid var(--bd);padding:14px 15px;margin-bottom:10px;}
 .sec{font-size:11px;font-weight:500;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin:1rem 0 .5rem;}
 .sec:first-child{margin-top:0;}
-.bg{border-left:3px solid var(--gr);padding-left:8px;}
-.ba{border-left:3px solid var(--aml);padding-left:8px;}
-.bb{border-left:3px solid var(--bl);padding-left:8px;}
-
-/* row */
-.row{display:flex;align-items:center;gap:7px;margin-bottom:.44rem;flex-wrap:wrap;}
-.row>label{font-size:13px;color:var(--text2);width:120px;flex-shrink:0;}
-.row>.unit{font-size:12px;color:var(--text3);flex-shrink:0;}
-.row>input[type=range]{flex:1;min-width:60px;accent-color:var(--gr);height:4px;cursor:pointer;}
-.row>.val{font-size:13px;font-weight:500;min-width:76px;text-align:right;margin-left:auto;flex-shrink:0;}
-
-/* stepper */
-.stp{display:flex;align-items:center;flex-shrink:0;}
-.stp button{
-  width:30px;height:30px;border:.5px solid var(--bd2);
-  background:var(--bg);color:var(--text);font-size:17px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:background .1s;-webkit-tap-highlight-color:transparent;user-select:none;
-}
-.stp button:first-child{border-radius:var(--r) 0 0 var(--r);}
-.stp button:last-child{border-radius:0 var(--r) var(--r) 0;}
-.stp button:active{background:var(--bg2);}
-.stp input[type=number]{
-  width:64px;border-radius:0;
-  border:.5px solid var(--bd2);border-left:none;border-right:none;
-  text-align:center;font-size:13px;height:30px;padding:0;
-  background:var(--bg);color:var(--text);-moz-appearance:textfield;
-}
-.stp input::-webkit-inner-spin-button,.stp input::-webkit-outer-spin-button{-webkit-appearance:none;}
-
-/* mobile row reflow */
-@media(max-width:520px){
-  .row>label{width:auto;flex:1;}
-  .row>.val{min-width:auto;}
-  .row>input[type=range]{width:100%;flex-basis:100%;order:3;}
-  .row>.stp,.row>.unit{order:2;}
-}
-
-/* toggle */
+.bl-g{border-left:3px solid var(--green);padding-left:8px;}
+.bl-a{border-left:3px solid var(--amber-l);padding-left:8px;}
+.bl-b{border-left:3px solid var(--blue);padding-left:8px;}
+.row{display:flex;align-items:center;gap:7px;margin-bottom:.4rem;flex-wrap:nowrap;}
+.row label{font-size:12px;color:var(--text2);width:108px;flex-shrink:0;line-height:1.3;}
+.row .unit{font-size:12px;color:var(--text2);flex-shrink:0;}
+.row .val{font-size:12px;font-weight:500;color:var(--text);min-width:72px;text-align:right;flex-shrink:0;}
+.row input[type=range]{flex:1;min-width:40px;accent-color:var(--green);height:4px;cursor:pointer;}
+@media(max-width:480px){.row{flex-wrap:wrap;gap:5px;}.row label{width:100%;margin-bottom:1px;}.row input[type=range]{order:3;width:100%;flex-basis:100%;}.row .val{order:2;margin-left:auto;}.row .unit{order:1;}}
+.stepper{display:flex;flex-shrink:0;}
+.stepper button{width:28px;height:28px;border:.5px solid var(--bd2);background:var(--bg);color:var(--text);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;user-select:none;transition:background .1s;}
+.stepper button:first-child{border-radius:var(--r) 0 0 var(--r);}
+.stepper button:last-child{border-radius:0 var(--r) var(--r) 0;}
+.stepper button:active{background:var(--bg2);}
+.stepper input[type=number]{width:68px;border-radius:0;border:.5px solid var(--bd2);border-left:none;border-right:none;text-align:center;font-size:13px;height:28px;background:var(--bg);color:var(--text);-moz-appearance:textfield;}
+.stepper input::-webkit-inner-spin-button,.stepper input::-webkit-outer-spin-button{-webkit-appearance:none;}
 .tog{display:flex;border-radius:var(--r);overflow:hidden;border:.5px solid var(--bd2);}
-.tog button{
-  flex:1;padding:7px 14px;font-size:13px;border:none;cursor:pointer;
-  transition:background .15s,color .15s;white-space:nowrap;
-  -webkit-tap-highlight-color:transparent;
-}
+.tog button{flex:1;padding:7px 12px;font-size:13px;border:none;cursor:pointer;transition:background .15s,color .15s;white-space:nowrap;-webkit-tap-highlight-color:transparent;}
 .tog button.off{background:var(--bg);color:var(--text2);}
-.tog button.on{background:var(--gr);color:#fff;font-weight:500;}
+.tog button.on{background:var(--green);color:#fff;font-weight:500;}
 .tog button:first-child{border-right:.5px solid var(--bd2);}
-#tnote{font-size:12px;color:var(--grd);margin-top:5px;}
-
-/* nisa bar */
-.nbar{background:var(--bg2);border-radius:var(--r);padding:.55rem .85rem;margin:.4rem 0;}
-.nbar-head{font-size:11px;color:var(--text3);margin-bottom:5px;display:flex;justify-content:space-between;}
-.nbar-track{height:7px;border-radius:4px;background:var(--bd);overflow:hidden;}
-.nbar-fill{height:100%;border-radius:4px;background:var(--gr);transition:width .3s;}
-.nbar-fill.ov{background:#E24B4A;}
-
-/* cards */
-.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:.6rem 0;}
-.g4b{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:.3rem 0 .1rem;}
-@media(max-width:520px){.g4,.g4b{grid-template-columns:repeat(2,minmax(0,1fr));}}
-.cd{background:var(--bg2);border-radius:var(--r);padding:.6rem .75rem;}
-.cd.gh{background:transparent;}
-.cdl{font-size:11px;color:var(--text3);margin-bottom:2px;line-height:1.3;}
-.cdv{font-size:15px;font-weight:500;}
-.cdv.g{color:var(--gr);}.cdv.gd{color:var(--grd);}.cdv.a{color:var(--am);}.cdv.t2{color:var(--text2);}
-
-/* drag info */
-#dinfo{
-  background:var(--bg);border:.5px solid var(--bd2);border-radius:var(--r);
-  padding:9px 12px;margin-bottom:10px;min-height:54px;
-  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-}
-.dib{display:flex;flex-direction:column;gap:1px;}
-.dibl{font-size:11px;color:var(--text3);}
-.dibv{font-size:13px;font-weight:500;}
-.dibv.g{color:var(--gr);}.dibv.a{color:var(--am);}.dibv.r{color:var(--rd);}
-.dihi{font-size:12px;color:var(--text3);margin:auto;text-align:center;}
-
-/* legend */
-.leg{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:8px;font-size:11px;color:var(--text3);}
-.leg span{display:flex;align-items:center;gap:4px;}
-.leg i{width:10px;height:10px;border-radius:2px;display:inline-block;flex-shrink:0;}
-.leg i.d{height:3px;border-radius:1px;}
-
-#cw{position:relative;width:100%;height:290px;cursor:crosshair;}
-@media(max-width:400px){#cw{height:240px;}}
-
-hr.dv{border:none;border-top:.5px solid var(--bd);margin:.85rem 0;}
-.note{font-size:11px;color:var(--text3);line-height:1.75;margin-top:10px;}
-footer{text-align:center;font-size:11px;color:var(--text3);padding:20px 16px 8px;}
+#tog-note{font-size:11px;color:var(--green-d);margin-top:4px;padding-left:115px;}
+@media(max-width:480px){#tog-note{padding-left:0;}}
+.nisa-wrap{background:var(--bg2);border-radius:var(--r);padding:.55rem .85rem;margin:.4rem 0;}
+.nisa-top{font-size:11px;color:var(--text3);margin-bottom:5px;display:flex;justify-content:space-between;}
+.nisa-track{height:7px;border-radius:4px;background:var(--bd);overflow:hidden;}
+.nisa-fill{height:100%;border-radius:4px;background:var(--green);transition:width .3s;}
+.nisa-fill.over{background:#E24B4A;}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:.55rem 0;}
+@media(max-width:540px){.g4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+.card{background:var(--bg2);border-radius:var(--r);padding:.55rem .75rem;}
+.card.ghost{background:transparent;}
+.cl{font-size:10px;color:var(--text3);margin-bottom:2px;}
+.cv{font-size:14px;font-weight:500;color:var(--text);}
+.cv.gr{color:var(--green);}
+.cv.gd{color:var(--green-d);}
+.cv.am{color:var(--amber);}
+.cv.gy{color:var(--text2);}
+hr.div{border:none;border-top:.5px solid var(--bd);margin:.75rem 0;}
+#dinfo{background:var(--bg);border:.5px solid var(--bd2);border-radius:var(--r);padding:9px 11px;margin-bottom:9px;min-height:50px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.db{display:flex;flex-direction:column;gap:1px;}
+.dl{font-size:10px;color:var(--text3);}
+.dv{font-size:12px;font-weight:500;color:var(--text);}
+.dv.gr{color:var(--green);}
+.dv.am{color:var(--amber);}
+.dv.rd{color:var(--red);}
+.dh{font-size:12px;color:var(--text3);margin:auto;}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:7px;font-size:11px;color:var(--text3);}
+.legend span{display:flex;align-items:center;gap:3px;}
+.legend i{width:9px;height:9px;border-radius:2px;display:inline-block;}
+.legend i.dash{height:3px;}
+#cwrap{position:relative;width:100%;height:280px;cursor:crosshair;touch-action:none;}
+.note{font-size:10px;color:var(--text3);line-height:1.7;margin-top:7px;}
+footer{text-align:center;font-size:11px;color:var(--text3);padding:20px 0 10px;}
 </style>
 </head>
 <body>
-
 <header>
-  <div class="logo">
-    <svg viewBox="0 0 20 20"><polyline points="2,14 7,8 11,11 18,4"/><line x1="14" y1="4" x2="18" y2="4"/><line x1="18" y1="4" x2="18" y2="8"/></svg>
-  </div>
-  <div>
-    <h1>資産運用シミュレーター</h1>
-    <p>成長型＋配当型 ／ NISA対応 ／ 税引後計算</p>
-  </div>
+  <h1>資産運用シミュレーター</h1>
+  <p>成長型＋配当型 ／ NISA対応 ／ 税引後計算</p>
 </header>
-
-<div class="wrap">
-
-  <!-- 基本 -->
+<div class="container">
   <div class="panel">
     <div class="sec">基本設定</div>
-    <div class="row">
-      <label>生まれた年</label>
-      <div class="stp"><button onclick="sv('by',-1)">−</button><input type="number" id="by" value="1980" min="1940" max="2010" step="1"><button onclick="sv('by',1)">+</button></div>
-      <span class="unit">年生まれ</span>
-      <input type="range" id="by-r" min="1940" max="2010" step="1" value="1980">
-      <span class="val" id="by-o">現在45歳</span>
-    </div>
+    <div class="row"><label>生まれた年</label><div class="stepper"><button onclick="sv('by',-1)">−</button><input type="number" id="by" value="1980" min="1940" max="2010" step="1"><button onclick="sv('by',1)">+</button></div><span class="unit">年生まれ</span><input type="range" id="by-r" min="1940" max="2010" step="1" value="1980"><span class="val" id="by-out">現在45歳</span></div>
   </div>
-
-  <!-- NISA -->
   <div class="panel">
-    <div class="sec"><span class="bb">NISA設定</span></div>
-    <div class="row">
-      <label>NISA残枠</label>
-      <div class="stp"><button onclick="sm('nr',-10)">−</button><input type="number" id="nr" value="500" min="0" max="1800" step="10"><button onclick="sm('nr',10)">+</button></div>
-      <span class="unit">万円</span>
-      <input type="range" id="nr-r" min="0" max="1800" step="10" value="500">
-      <span class="val" id="nr-o">500万円</span>
-    </div>
-    <div class="nbar">
-      <div class="nbar-head"><span>NISA使用済み</span><span id="nlbl">1,300万円 / 1,800万円</span></div>
-      <div class="nbar-track"><div class="nbar-fill" id="nfill" style="width:72.2%"></div></div>
-    </div>
+    <div class="sec"><span class="bl-b">NISA設定</span></div>
+    <div class="row"><label>NISA残枠</label><div class="stepper"><button onclick="sm('nr',-10)">−</button><input type="number" id="nr" value="500" min="0" max="1800" step="10"><button onclick="sm('nr',10)">+</button></div><span class="unit">万円</span><input type="range" id="nr-r" min="0" max="1800" step="10" value="500"><span class="val" id="nr-out">500万円</span></div>
+    <div class="nisa-wrap"><div class="nisa-top"><span>NISA使用済み</span><span id="nisa-label">1,300万円 / 1,800万円</span></div><div class="nisa-track"><div class="nisa-fill" id="nisa-bar" style="width:72%"></div></div></div>
   </div>
-
-  <!-- 成長型 -->
   <div class="panel">
-    <div class="sec"><span class="bg">成長型（複利運用）</span></div>
-    <div class="row"><label>現在の運用金額</label><div class="stp"><button onclick="sm('gi',-10)">−</button><input type="number" id="gi" value="1000" min="0" step="10"><button onclick="sm('gi',10)">+</button></div><span class="unit">万円</span><input type="range" id="gi-r" min="0" max="5000" step="10" value="1000"><span class="val" id="gi-o">1,000万円</span></div>
-    <div class="row"><label>年利（株価成長）</label><div class="stp"><button onclick="sv('gr',-0.5)">−</button><input type="number" id="gr" value="6" min="0" max="20" step="0.5"><button onclick="sv('gr',0.5)">+</button></div><span class="unit">%</span><input type="range" id="gr-r" min="0" max="20" step="0.5" value="6"><span class="val" id="gr-o">6.0%</span></div>
-    <div class="row"><label>フェーズ1追加/年</label><div class="stp"><button onclick="sm('gp1',-10)">−</button><input type="number" id="gp1" value="180" min="0" step="10"><button onclick="sm('gp1',10)">+</button></div><span class="unit">万円</span><input type="range" id="gp1-r" min="0" max="1000" step="10" value="180"><span class="val" id="gp1-o">180万円/年</span></div>
-    <div class="row"><label>フェーズ2追加/年</label><div class="stp"><button onclick="sm('gp2',-10)">−</button><input type="number" id="gp2" value="80" min="-500" step="10"><button onclick="sm('gp2',10)">+</button></div><span class="unit">万円</span><input type="range" id="gp2-r" min="-500" max="500" step="10" value="80"><span class="val" id="gp2-o">80万円/年</span></div>
+    <div class="sec"><span class="bl-g">成長型（複利運用）</span></div>
+    <div class="row"><label>現在の運用金額</label><div class="stepper"><button onclick="sm('gi',-10)">−</button><input type="number" id="gi" value="1000" min="0" step="10"><button onclick="sm('gi',10)">+</button></div><span class="unit">万円</span><input type="range" id="gi-r" min="0" max="5000" step="10" value="1000"><span class="val" id="gi-out">1,000万円</span></div>
+    <div class="row"><label>年利（株価成長）</label><div class="stepper"><button onclick="sv('gr',-0.5)">−</button><input type="number" id="gr" value="6" min="0" max="20" step="0.5"><button onclick="sv('gr',0.5)">+</button></div><span class="unit">%</span><input type="range" id="gr-r" min="0" max="20" step="0.5" value="6"><span class="val" id="gr-out">6.0%</span></div>
+    <div class="row"><label>フェーズ1追加/年</label><div class="stepper"><button onclick="sm('gp1',-10)">−</button><input type="number" id="gp1" value="180" min="0" step="10"><button onclick="sm('gp1',10)">+</button></div><span class="unit">万円</span><input type="range" id="gp1-r" min="0" max="1000" step="10" value="180"><span class="val" id="gp1-out">180万円/年</span></div>
+    <div class="row"><label>フェーズ2追加/年</label><div class="stepper"><button onclick="sm('gp2',-10)">−</button><input type="number" id="gp2" value="80" min="-500" step="10"><button onclick="sm('gp2',10)">+</button></div><span class="unit">万円</span><input type="range" id="gp2-r" min="-500" max="500" step="10" value="80"><span class="val" id="gp2-out">80万円/年</span></div>
   </div>
-
-  <!-- 配当型 -->
   <div class="panel">
-    <div class="sec"><span class="ba">配当型（インカム重視）</span></div>
-    <div class="row"><label>現在の運用金額</label><div class="stp"><button onclick="sm('di',-10)">−</button><input type="number" id="di" value="300" min="0" step="10"><button onclick="sm('di',10)">+</button></div><span class="unit">万円</span><input type="range" id="di-r" min="0" max="3000" step="10" value="300"><span class="val" id="di-o">300万円</span></div>
-    <div class="row"><label>年利（株価成長）</label><div class="stp"><button onclick="sv('dr',-0.5)">−</button><input type="number" id="dr" value="2" min="0" max="15" step="0.5"><button onclick="sv('dr',0.5)">+</button></div><span class="unit">%</span><input type="range" id="dr-r" min="0" max="15" step="0.5" value="2"><span class="val" id="dr-o">2.0%</span></div>
-    <div class="row"><label>配当利回り（初年）</label><div class="stp"><button onclick="sv('dy',-0.5)">−</button><input type="number" id="dy" value="4" min="0" max="15" step="0.5"><button onclick="sv('dy',0.5)">+</button></div><span class="unit">%</span><input type="range" id="dy-r" min="0" max="15" step="0.5" value="4"><span class="val" id="dy-o">4.0%</span></div>
-    <div class="row"><label>増配率（年）</label><div class="stp"><button onclick="sv('dg',-0.5)">−</button><input type="number" id="dg" value="3" min="0" max="20" step="0.5"><button onclick="sv('dg',0.5)">+</button></div><span class="unit">%</span><input type="range" id="dg-r" min="0" max="20" step="0.5" value="3"><span class="val" id="dg-o">3.0%</span></div>
-    <div class="row"><label>フェーズ1追加/年</label><div class="stp"><button onclick="sm('dp1',-10)">−</button><input type="number" id="dp1" value="60" min="0" step="10"><button onclick="sm('dp1',10)">+</button></div><span class="unit">万円</span><input type="range" id="dp1-r" min="0" max="600" step="10" value="60"><span class="val" id="dp1-o">60万円/年</span></div>
-    <div class="row"><label>フェーズ2追加/年</label><div class="stp"><button onclick="sm('dp2',-10)">−</button><input type="number" id="dp2" value="40" min="-300" step="10"><button onclick="sm('dp2',10)">+</button></div><span class="unit">万円</span><input type="range" id="dp2-r" min="-300" max="300" step="10" value="40"><span class="val" id="dp2-o">40万円/年</span></div>
-    <div class="row" style="margin-top:.6rem;">
-      <label>配当金の使途</label>
-      <div class="tog"><button id="tc" class="on" onclick="setTog('cash')">現金受取</button><button id="tri" class="off" onclick="setTog('reinvest')">再投資</button></div>
+    <div class="sec"><span class="bl-a">配当型（インカム重視）</span></div>
+    <div class="row"><label>現在の運用金額</label><div class="stepper"><button onclick="sm('di',-10)">−</button><input type="number" id="di" value="300" min="0" step="10"><button onclick="sm('di',10)">+</button></div><span class="unit">万円</span><input type="range" id="di-r" min="0" max="3000" step="10" value="300"><span class="val" id="di-out">300万円</span></div>
+    <div class="row"><label>年利（株価成長）</label><div class="stepper"><button onclick="sv('dr',-0.5)">−</button><input type="number" id="dr" value="2" min="0" max="15" step="0.5"><button onclick="sv('dr',0.5)">+</button></div><span class="unit">%</span><input type="range" id="dr-r" min="0" max="15" step="0.5" value="2"><span class="val" id="dr-out">2.0%</span></div>
+    <div class="row"><label>配当利回り（初年）</label><div class="stepper"><button onclick="sv('dy',-0.5)">−</button><input type="number" id="dy" value="4" min="0" max="15" step="0.5"><button onclick="sv('dy',0.5)">+</button></div><span class="unit">%</span><input type="range" id="dy-r" min="0" max="15" step="0.5" value="4"><span class="val" id="dy-out">4.0%</span></div>
+    <div class="row"><label>増配率（年）</label><div class="stepper"><button onclick="sv('dg',-0.5)">−</button><input type="number" id="dg" value="3" min="0" max="20" step="0.5"><button onclick="sv('dg',0.5)">+</button></div><span class="unit">%</span><input type="range" id="dg-r" min="0" max="20" step="0.5" value="3"><span class="val" id="dg-out">3.0%</span></div>
+    <div class="row"><label>フェーズ1追加/年</label><div class="stepper"><button onclick="sm('dp1',-10)">−</button><input type="number" id="dp1" value="60" min="0" step="10"><button onclick="sm('dp1',10)">+</button></div><span class="unit">万円</span><input type="range" id="dp1-r" min="0" max="600" step="10" value="60"><span class="val" id="dp1-out">60万円/年</span></div>
+    <div class="row"><label>フェーズ2追加/年</label><div class="stepper"><button onclick="sm('dp2',-10)">−</button><input type="number" id="dp2" value="40" min="-300" step="10"><button onclick="sm('dp2',10)">+</button></div><span class="unit">万円</span><input type="range" id="dp2-r" min="-300" max="300" step="10" value="40"><span class="val" id="dp2-out">40万円/年</span></div>
+    <div class="row" style="margin-top:.6rem;"><label>配当金の使途</label><div class="tog"><button id="t-cash" class="on" onclick="setTog('cash')">現金受取</button><button id="t-ri" class="off" onclick="setTog('ri')">再投資</button></div></div>
+    <div id="tog-note">配当は毎年現金で受け取ります</div>
+  </div>
+  <div class="panel">
+    <div class="sec">期間設定</div>
+    <div class="row"><label>フェーズ1期間</label><div class="stepper"><button onclick="sv('p1',-1)">−</button><input type="number" id="p1" value="3" min="0" max="30" step="1"><button onclick="sv('p1',1)">+</button></div><span class="unit">年</span><input type="range" id="p1-r" min="0" max="30" step="1" value="3"><span class="val" id="p1-out">3年</span></div>
+    <div class="row"><label>フェーズ2期間</label><div class="stepper"><button onclick="sv('p2',-1)">−</button><input type="number" id="p2" value="17" min="0" max="40" step="1"><button onclick="sv('p2',1)">+</button></div><span class="unit">年</span><input type="range" id="p2-r" min="0" max="40" step="1" value="17"><span class="val" id="p2-out">17年</span></div>
+  </div>
+  <div class="panel">
+    <div class="sec">シミュレーション結果</div>
+    <div class="g4">
+      <div class="card"><div class="cl">総資産（税引前）</div><div class="cv gr" id="c-total">-</div></div>
+      <div class="card"><div class="cl">総資産（税引後）</div><div class="cv gd" id="c-total-at">-</div></div>
+      <div class="card"><div class="cl">年間配当（税引前）</div><div class="cv am" id="c-div">-</div></div>
+      <div class="card"><div class="cl">年間配当（税引後）</div><div class="cv am" id="c-div-at">-</div></div>
     </div>
-    
+    <div class="g4" style="margin-top:0;">
+      <div class="card"><div class="cl">NISA枠内資産</div><div class="cv" id="c-nisa">-</div></div>
+      <div class="card"><div class="cl">課税対象資産</div><div class="cv gy" id="c-tax">-</div></div>
+      <div class="card ghost"></div><div class="card ghost"></div>
+    </div>
+    <hr class="div">
+    <div id="dinfo"><span class="dh">グラフ上をドラッグして時点を確認</span></div>
+    <div class="legend">
+      <span><i style="background:#1D9E75;"></i>総資産・税前（左）</span>
+      <span><i style="background:#085041;"></i>総資産・税後（左）</span>
+      <span><i style="background:#EF9F27;"></i>配当・税前（右）</span>
+      <span><i style="background:#BA7517;"></i>配当・税後（右）</span>
+      <span><i class="dash" style="background:#D3D1C7;"></i>累計投資（左）</span>
+    </div>
+    <div id="cwrap"><canvas id="chart"></canvas></div>
+    <p class="note">※ 税率：約20.315%（所得税+住民税）。NISA枠内は非課税。<br>※ 税引後総資産は「課税口座の含み益×(1−税率)＋投資元本」として計算（売却時概算）。<br>※ 再投資モードでは配当を配当型残高に加算し、翌年以降の配当も増加します。<br>※ 追加投資はNISA残枠を順次消化し、超過分は課税口座扱いとして計算。</p>
+  </div>
+</div>
+<footer>資産運用シミュレーター — 試算目的のみ。投資判断の根拠にはなりません。</footer>
+<script>
+var chart=null,activeIdx=-1,ri=false,cData={};
+var CY=2026,TAX=0.20315,NM=1800;
+function fmtM(v){var m=Math.round(v/10000);if(Math.abs(m)>=10000)return(m/10000).toFixed(2)+'億円';return m.toLocaleString('ja-JP')+'万円';}
+function gn(id){return+document.getElementById(id).value;}
+function clamp(v,a,b){return Math.min(b,Math.max(a,v));}
+function sv(id,d){var el=document.getElementById(id);el.value=clamp(+el.value+d,+el.min,+el.max);var r=document.getElementById(id+'-r');if(r)r.value=el.value;calc();}
+function sm(id,d){var el=document.getElementById(id);el.value=clamp(Math.round((+el.value+d)/10)*10,+el.min,+el.max);var r=document.getElementById(id+'-r');if(r)r.value=el.value;calc();}
+function setTog(t){ri=(t==='ri');document.getElementById('t-cash').className=ri?'off':'on';document.getElementById('t-ri').className=ri?'on':'off';var n=document.getElementById('tog-note');n.textContent=ri?'配当は毎年配当型残高へ再投資されます（翌年以降の配当も増加）':'配当は毎年現金で受け取ります';n.style.color=ri?'#BA7517':'#085041';calc();}
+var IDS=['by','nr','gi','gr','gp1','gp2','di','dr','dy','dg','dp1','dp2','p1','p2'];
+IDS.forEach(function(id){var el=document.getElementById(id),er=document.getElementById(id+'-r');if(!el)return;el.addEventListener('input',function(){if(er)er.value=el.value;calc();});if(er)er.addEventListener('input',function(){el.value=er.value;calc();});});
+function updNisa(used){var pct=Math.min(100,(used/NM)*100);document.getElementById('nisa-bar').style.width=pct.toFixed(1)+'%';document.getElementById('nisa-bar').className='nisa-fill'+(used>NM?' over':'');document.getElementById('nisa-label').textContent=Math.round(used).toLocaleString('ja-JP')+'万円 / '+NM.toLocaleString('ja-JP')+'万円';}
+function getIdx(e){if(!chart)return-1;var rect=chart.canvas.getBoundingClientRect();var cx=e.touches?e.touches[0].clientX:e.clientX;var x=cx-rect.left;var xs=chart.scales.x;var n=cData.tot?cData.tot.length:0;if(!n)return-1;var r=(x-xs.getPixelForValue(0))/(xs.getPixelForValue(n-1)-xs.getPixelForValue(0));return Math.max(0,Math.min(n-1,Math.round(r*(n-1))));}
+function showDrag(idx){if(idx<0||!cData.tot||idx>=cData.tot.length)return;activeIdx=idx;var pts=(cData.rl[idx]||'').split('
+');var t=cData.tot[idx],ta=cData.ta[idx],dv=cData.dv[idx],da=cData.da[idx],ni=cData.ni[idx],tx=cData.tx[idx];document.getElementById('dinfo').innerHTML='<div class="db"><div class="dl">時点</div><div class="dv">'+(pts[0]||'')+'　'+(pts[1]||'')+'</div></div><div class="db"><div class="dl">総資産(税前)</div><div class="dv gr">'+fmtM(t)+'</div></div><div class="db"><div class="dl">総資産(税後)</div><div class="dv gr">'+fmtM(ta)+'</div></div><div class="db"><div class="dl">配当(税前)</div><div class="dv am">'+fmtM(dv)+'</div></div><div class="db"><div class="dl">配当(税後)</div><div class="dv am">'+fmtM(da)+'</div></div><div class="db"><div class="dl">NISA枠内</div><div class="dv">'+fmtM(ni)+'</div></div><div class="db"><div class="dl">課税資産</div><div class="dv rd">'+fmtM(tx)+'</div></div>';if(chart){chart.options.plugins.annotation.annotations.ch={type:'line',xMin:idx,xMax:idx,borderColor:'rgba(136,135,128,.65)',borderWidth:1,borderDash:[3,3]};chart.update('none');}}
+function attachDrag(){var c=document.getElementById('chart');var drag=false;c.addEventListener('mousedown',function(e){drag=true;showDrag(getIdx(e));e.preventDefault();});c.addEventListener('mousemove',function(e){if(drag){showDrag(getIdx(e));e.preventDefault();}});c.addEventListener('mouseup',function(){drag=false;});c.addEventListener('mouseleave',function(){drag=false;});c.addEventListener('touchstart',function(e){drag=true;showDrag(getIdx(e));e.preventDefault();},{passive:false});c.addEventListener('touchmove',function(e){if(drag){showDrag(getIdx(e));e.preventDefault();}},{passive:false});c.addEventListener('touchend',function(){drag=false;});}
+function calc(){
+var age0=CY-gn('by'),nrm=gn('nr');
+var gI=gn('gi')*10000,gR=gn('gr')/100;
+var gA=[gn('gp1')*10000,gn('gp2')*10000];
+var dI=gn('di')*10000,dR=gn('dr')/100;
+var dY=gn('dy')/100,dG=gn('dg')/100;
+var dA=[gn('dp1')*10000,gn('dp2')*10000];
+var p1=Math.max(0,gn('p1')),p2=Math.max(0,gn('p2')),tY=p1+p2;
+var cI=(gn('gi')+gn('di'))*10000;
+var nI=Math.min(cI,NM*10000),tI=Math.max(0,cI-NM*10000),nC=Math.max(0,NM*10000-nI);
+updNisa((NM-nrm)+gn('gi')+gn('di'));
+document.getElementById('by-out').textContent='現在'+age0+'歳';
+document.getElementById('nr-out').textContent=nrm.toLocaleString('ja-JP')+'万円';
+['gi','di'].forEach(function(id){document.getElementById(id+'-out').textContent=gn(id).toLocaleString('ja-JP')+'万円';});
+['gr','dr','dy','dg'].forEach(function(id){document.getElementById(id+'-out').textContent=gn(id).toFixed(1)+'%';});
+['gp1','gp2','dp1','dp2'].forEach(function(id){document.getElementById(id+'-out').textContent=gn(id).toLocaleString('ja-JP')+'万円/年';});
+document.getElementById('p1-out').textContent=p1+'年';
+document.getElementById('p2-out').textContent=p2+'年';
+var stp=tY<=12?1:Math.ceil(tY/12);
+var rl=[CY+'
+'+age0+'歳'],dl=[CY+'
+'+age0+'歳'];
+var tot=[],ta=[],dv=[],da=[],inv=[],ni=[],tx=[];
+var gB=gI,dB=dI,inv0=cI,dps=dI*dY;
+var nr0=nI/Math.max(inv0,1),tb0=gB+dB;
+var tg0=Math.max(0,(tb0*(1-nr0))-tI);
+tot.push(Math.round(tb0));ta.push(Math.round(tb0-tg0*TAX));
+dv.push(Math.round(dps));da.push(Math.round(dps*(nr0+(1-nr0)*(1-TAX))));
+inv.push(Math.round(inv0));ni.push(Math.round(tb0*nr0));tx.push(Math.round(tb0*(1-nr0)));
+for(var y=1;y<=tY;y++){
+var ph=y<=p1?0:1;
+var aG=gA[ph],aD=dA[ph],aT=aG+aD;
+var nth=Math.min(aT,nC);nI+=nth;tI+=aT-nth;nC=Math.max(0,NM*10000-nI);
+gB=gB*(1+gR)+aG;
+dps=dps*(1+dG)+aD*dY;
+var dvY=dps;
+dB=dB*(1+dR)+aD;
+if(ri){dB+=dvY;dps+=dvY*dY;}
+inv0+=aT;
+var tb=gB+dB,nr=Math.min(nI,inv0)/Math.max(inv0,1);
+var txB=tb*(1-nr),txG=Math.max(0,txB-tI);
+var atB=Math.round(tb-txG*TAX);
+var dvA=Math.round(dvY-dvY*(1-nr)*TAX);
+var yr=CY+y,age=age0+y,raw=yr+'
+'+age+'歳';
+rl.push(raw);dl.push((y%stp===0||y===tY)?raw:'');
+tot.push(Math.round(tb));ta.push(atB);
+dv.push(Math.round(dvY));da.push(dvA);
+inv.push(Math.round(inv0));ni.push(Math.round(tb*nr));tx.push(Math.round(txB));
+}
+cData={tot:tot,ta:ta,dv:dv,da:da,rl:rl,dl:dl,inv:inv,ni:ni,tx:tx};
+var last=tot.length-1;
+document.getElementById('c-total').textContent=fmtM(tot[last]);
+document.getElementById('c-total-at').textContent=fmtM(ta[last]);
+document.getElementById('c-div').textContent=fmtM(dv[last]);
+document.getElementById('c-div-at').textContent=fmtM(da[last]);
+document.getElementById('c-nisa').textContent=fmtM(ni[last]);
+document.getElementById('c-tax').textContent=fmtM(tx[last]);
+var ann={};
+if(p1>0&&p1<tY)ann.ph={type:'line',xMin:p1,xMax:p1,borderColor:'#5DCAA5',borderWidth:1.5,borderDash:[4,3]};
+if(activeIdx>=0&&activeIdx<tot.length)ann.ch={type:'line',xMin:activeIdx,xMax:activeIdx,borderColor:'rgba(136,135,128,.65)',borderWidth:1,borderDash:[3,3]};
+var dk=window.matchMedia('(prefers-color-scheme:dark)').matches;
+var gC=dk?'rgba(255,255,255,.08)':'rgba(0,0,0,.08)';
+if(chart){
+chart.data.labels=dl;
+[tot,ta,dv,da,inv].forEach(function(d,i){chart.data.datasets[i].data=d;});
+chart.options.plugins.annotation.annotations=ann;
+chart.update();
+if(activeIdx>=0)showDrag(activeIdx);
+}else{
+chart=new Chart(document.getElementById('chart'),{type:'line',data:{labels:dl,datasets:[
+{label:'総資産(税前)',data:tot,borderColor:'#1D9E75',backgroundColor:'rgba(29,158,117,.08)',fill:true,tension:.3,pointRadius:0,borderWidth:2.5,yAxisID:'y'},
+{label:'総資産(税後)',data:ta,borderColor:'#085041',backgroundColor:'transparent',fill:false,tension:.3,pointRadius:0,borderWidth:1.8,borderDash:[3,3],yAxisID:'y'},
+{label:'配当(税前)',data:dv,borderColor:'#EF9F27',backgroundColor:'rgba(239,159,39,.07)',fill:true,tension:.3,pointRadius:0,borderWidth:2,yAxisID:'y2'},
+{label:'配当(税後)',data:da,borderColor:'#BA7517',backgroundColor:'transparent',fill:false,tension:.3,pointRadius:0,borderWidth:1.5,borderDash:[3,3],yAxisID:'y2'},
+{label:'累計投資',data:inv,borderColor:'#D3D1C7',fill:false,tension:0,pointRadius:0,borderWidth:1.2,borderDash:[4,3],yAxisID:'y'}
+]},options:{responsive:true,maintainAspectRatio:false,animation:false,
+plugins:{legend:{display:false},tooltip:{enabled:false},annotation:{annotations:ann}},
+scales:{
+x:{ticks:{color:'#888780',font:{size:10},maxRotation:0,callback:function(v,i){var r=dl[i];return r?r.split('
+'):'';},maxTicksLimit:12},grid:{color:gC}},
+y:{position:'left',ticks:{color:'#888780',font:{size:10},callback:function(v){var m=Math.round(v/10000);return Math.abs(m)>=10000?(m/10000).toFixed(0)+'億':m.toLocaleString('ja-JP')+'万';}},grid:{color:gC}},
+y2:{position:'right',ticks:{color:'#BA7517',font:{size:10},callback:function(v){var m=Math.round(v/10000);return m.toLocaleString('ja-JP')+'万';}},grid:{display:false}}
+}}});
+attachDrag();
+}
+}
+calc();
+</script>
+</body>
+</html>
