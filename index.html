@@ -160,8 +160,7 @@ var IDS=['by','nr','gi','gr','gp1','gp2','di','dr','dy','dg','dp1','dp2','p1','p
 IDS.forEach(function(id){var el=document.getElementById(id),er=document.getElementById(id+'-r');if(!el)return;el.addEventListener('input',function(){if(er)er.value=el.value;calc();});if(er)er.addEventListener('input',function(){el.value=er.value;calc();});});
 function updNisa(used){var pct=Math.min(100,(used/NM)*100);document.getElementById('nisa-bar').style.width=pct.toFixed(1)+'%';document.getElementById('nisa-bar').className='nisa-fill'+(used>NM?' over':'');document.getElementById('nisa-label').textContent=Math.round(used).toLocaleString('ja-JP')+'万円 / '+NM.toLocaleString('ja-JP')+'万円';}
 function getIdx(e){if(!chart)return-1;var rect=chart.canvas.getBoundingClientRect();var cx=e.touches?e.touches[0].clientX:e.clientX;var x=cx-rect.left;var xs=chart.scales.x;var n=cData.tot?cData.tot.length:0;if(!n)return-1;var r=(x-xs.getPixelForValue(0))/(xs.getPixelForValue(n-1)-xs.getPixelForValue(0));return Math.max(0,Math.min(n-1,Math.round(r*(n-1))));}
-function showDrag(idx){if(idx<0||!cData.tot||idx>=cData.tot.length)return;activeIdx=idx;var pts=(cData.rl[idx]||'').split('
-');var t=cData.tot[idx],ta=cData.ta[idx],dv=cData.dv[idx],da=cData.da[idx],ni=cData.ni[idx],tx=cData.tx[idx];document.getElementById('dinfo').innerHTML='<div class="db"><div class="dl">時点</div><div class="dv">'+(pts[0]||'')+'　'+(pts[1]||'')+'</div></div><div class="db"><div class="dl">総資産(税前)</div><div class="dv gr">'+fmtM(t)+'</div></div><div class="db"><div class="dl">総資産(税後)</div><div class="dv gr">'+fmtM(ta)+'</div></div><div class="db"><div class="dl">配当(税前)</div><div class="dv am">'+fmtM(dv)+'</div></div><div class="db"><div class="dl">配当(税後)</div><div class="dv am">'+fmtM(da)+'</div></div><div class="db"><div class="dl">NISA枠内</div><div class="dv">'+fmtM(ni)+'</div></div><div class="db"><div class="dl">課税資産</div><div class="dv rd">'+fmtM(tx)+'</div></div>';if(chart){chart.options.plugins.annotation.annotations.ch={type:'line',xMin:idx,xMax:idx,borderColor:'rgba(136,135,128,.65)',borderWidth:1,borderDash:[3,3]};chart.update('none');}}
+function showDrag(idx){if(idx<0||!cData.tot||idx>=cData.tot.length)return;activeIdx=idx;var pts=(cData.rl[idx]||'').split('\n');var t=cData.tot[idx],ta=cData.ta[idx],dv=cData.dv[idx],da=cData.da[idx],ni=cData.ni[idx],tx=cData.tx[idx];document.getElementById('dinfo').innerHTML='<div class="db"><div class="dl">時点</div><div class="dv">'+(pts[0]||'')+'　'+(pts[1]||'')+'</div></div><div class="db"><div class="dl">総資産(税前)</div><div class="dv gr">'+fmtM(t)+'</div></div><div class="db"><div class="dl">総資産(税後)</div><div class="dv gr">'+fmtM(ta)+'</div></div><div class="db"><div class="dl">配当(税前)</div><div class="dv am">'+fmtM(dv)+'</div></div><div class="db"><div class="dl">配当(税後)</div><div class="dv am">'+fmtM(da)+'</div></div><div class="db"><div class="dl">NISA枠内</div><div class="dv">'+fmtM(ni)+'</div></div><div class="db"><div class="dl">課税資産</div><div class="dv rd">'+fmtM(tx)+'</div></div>';if(chart){chart.options.plugins.annotation.annotations.ch={type:'line',xMin:idx,xMax:idx,borderColor:'rgba(136,135,128,.65)',borderWidth:1,borderDash:[3,3]};chart.update('none');}}
 function attachDrag(){var c=document.getElementById('chart');var drag=false;c.addEventListener('mousedown',function(e){drag=true;showDrag(getIdx(e));e.preventDefault();});c.addEventListener('mousemove',function(e){if(drag){showDrag(getIdx(e));e.preventDefault();}});c.addEventListener('mouseup',function(){drag=false;});c.addEventListener('mouseleave',function(){drag=false;});c.addEventListener('touchstart',function(e){drag=true;showDrag(getIdx(e));e.preventDefault();},{passive:false});c.addEventListener('touchmove',function(e){if(drag){showDrag(getIdx(e));e.preventDefault();}},{passive:false});c.addEventListener('touchend',function(){drag=false;});}
 function calc(){
 var age0=CY-gn('by'),nrm=gn('nr');
@@ -182,9 +181,7 @@ document.getElementById('nr-out').textContent=nrm.toLocaleString('ja-JP')+'万�
 document.getElementById('p1-out').textContent=p1+'年';
 document.getElementById('p2-out').textContent=p2+'年';
 var stp=tY<=12?1:Math.ceil(tY/12);
-var rl=[CY+'
-'+age0+'歳'],dl=[CY+'
-'+age0+'歳'];
+var rl=[CY+'\n'+age0+'歳'],dl=[CY+'\n'+age0+'歳'];
 var tot=[],ta=[],dv=[],da=[],inv=[],ni=[],tx=[];
 var gB=gI,dB=dI,inv0=cI,dps=dI*dY;
 var nr0=nI/Math.max(inv0,1),tb0=gB+dB;
@@ -206,8 +203,7 @@ var tb=gB+dB,nr=Math.min(nI,inv0)/Math.max(inv0,1);
 var txB=tb*(1-nr),txG=Math.max(0,txB-tI);
 var atB=Math.round(tb-txG*TAX);
 var dvA=Math.round(dvY-dvY*(1-nr)*TAX);
-var yr=CY+y,age=age0+y,raw=yr+'
-'+age+'歳';
+var yr=CY+y,age=age0+y,raw=yr+'\n'+age+'歳';
 rl.push(raw);dl.push((y%stp===0||y===tY)?raw:'');
 tot.push(Math.round(tb));ta.push(atB);
 dv.push(Math.round(dvY));da.push(dvA);
@@ -242,8 +238,7 @@ chart=new Chart(document.getElementById('chart'),{type:'line',data:{labels:dl,da
 ]},options:{responsive:true,maintainAspectRatio:false,animation:false,
 plugins:{legend:{display:false},tooltip:{enabled:false},annotation:{annotations:ann}},
 scales:{
-x:{ticks:{color:'#888780',font:{size:10},maxRotation:0,callback:function(v,i){var r=dl[i];return r?r.split('
-'):'';},maxTicksLimit:12},grid:{color:gC}},
+x:{ticks:{color:'#888780',font:{size:10},maxRotation:0,callback:function(v,i){var r=dl[i];return r?r.split('\n'):'';},maxTicksLimit:12},grid:{color:gC}},
 y:{position:'left',ticks:{color:'#888780',font:{size:10},callback:function(v){var m=Math.round(v/10000);return Math.abs(m)>=10000?(m/10000).toFixed(0)+'億':m.toLocaleString('ja-JP')+'万';}},grid:{color:gC}},
 y2:{position:'right',ticks:{color:'#BA7517',font:{size:10},callback:function(v){var m=Math.round(v/10000);return m.toLocaleString('ja-JP')+'万';}},grid:{display:false}}
 }}});
