@@ -69,10 +69,10 @@
 
 | ディレクトリ | 内容 |
 |---|---|
-| `context/personal/` | 自分のアイデア・経験 |
-| `context/work/` | 会社・業務情報 |
-| `context/web/` | ウェブ情報 |
-| `context/study-sessions/` | 勉強会ノート |
-| `context/chat/` | チャットログ |
+| `context/me/` | 自分自身（価値観・経験・気づき・なりたい姿） |
+| `context/projects/` | 進行中の取り組み（仕事・副業・趣味 問わず） |
+| `context/cases/` | 事例・パターン・成功と失敗 |
+| `context/knowledge/` | 外部インプットを自分化したもの（勉強会・読書・ウェブ） |
+| `context/log/` | 日々の生記録・音声メモ |
 
 タスクに関連するディレクトリのファイルを必要に応じて参照し、回答の精度を高めること。
